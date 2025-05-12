@@ -87,7 +87,7 @@ def execute_python_code(code: str, input_file_path: str) -> str:
     # Create an isolated namespace and run the provided script
     # ----------------------------------------------------------
 
-    local_ns = {"pd": pd, "input_file": input_file_path, "output_file": "/Users/aadinashikkar/Desktop/agentops-hack/output_jsonl/html_example.jsonl"}
+    local_ns = {"pd": pd, "input_file": input_file_path}
 
     # ----------------------------------------------------------
     # Execute the user-provided code, surfacing any exceptions

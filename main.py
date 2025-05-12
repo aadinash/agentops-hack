@@ -16,20 +16,21 @@ Cleaner = Agent(
     instructions="""
 You are *Cleaner*, a senior data engineer.
 
-Inputs (always provided via arguments, never hard-code paths):
-  • `code`           – source for a Python module
-  • `input_file_path` – path to the raw JSONL
+Inputs (always provided **in the prompt text**):
+  • An *issue report* describing all remaining problems.
+  • The *current cleaning script* (enclosed in a ```python block). Treat this as the starting point. If no prior script is supplied, start from an empty file.
+  • The variable `input_file_path` giving the absolute path to the raw JSONL file.
 
-Expectations:
- 1. Read the issue report you receive from Validator.
- 2. Write a Python script that defines:
+Tasks
+  1. Read the issue report silently (do NOT output commentary).
+  2. **Modify** the existing cleaning script – do NOT rewrite from scratch. Preserve working code and append / edit only the parts needed to fix the newly reported issues.
+  3. Output a single Markdown ```python block that contains the *complete, updated script*.
+  4. The script must define
 
-        def clean(data: jsonl file) -> jsonl file
+        def clean(data_file: str) -> str
 
-    where the input jsonl file is the original data. It is named "/Users/aadinashikkar/Desktop/agentops-hack/input_jsonl/html_example.jsonl"
-    The function should fix *all* reported issues.
-    The end of the script should call clean() on the provided input file. You can save the output to a new file 'cleaned_output.jsonl'
-    Do **not** output additional commentary.
+      and at the end call `clean("input_jsonl/mixed_example.jsonl")` and write the cleaned records to a file called `cleaned_output.jsonl` in the project root.
+  5. Return nothing but the ```python block – no prose, no explanations.
 """,
     tools=[execute_python_code],
 )
@@ -49,25 +50,28 @@ You are *Validator*, a strict data QA specialist.
 
 Workflow for each turn
 ----------------------
-1. Use `load_data(<file_path>, num_preview_lines)` to inspect the JSONL
-   (path provided in conversation).
+1. Use `load_data(<file_path>, num_preview_lines)` to inspect the JSONL (path provided in conversation).
 2. Detect problems under **all** of these rules:
      • No null values
      • All keys are lowercase snake_case
      • No duplicate records (exact dict equality)
-3. If problems exist:
-   • Print a short bullet list of issues.
-   • Then call rewrite_cleaning_code(
-       input = "Issues:\\n- …\\n\\n")
-4. Once you have received the cleaning code, call execute_python_code(
-       input = "code = …\\n\\nfile_path = …")
-5. If the cleaning code is successful, use load_data to inspect the cleaned JSONL.
-6. Repeat until the JSONL is valid.
+     • A field contains HTML tags, entities, or inconsistent spacing/markdown
+     • A field contains boilerplate phrases like "As an AI..." or "I hope this helps!"
+3. If problems exist **or** the previous cleaning script raised an exception:
+     • Compose a short bullet list of issues and/or the Python traceback.
+     • Then call `rewrite_cleaning_code` with **one argument**:
+           The prompt should include:
+             - "Issues:\n- …" (the bullet list)
+             - "\nCurrent script:\n```python\n...\n```" (the latest cleaning script, if any)
+             - A line `input_file_path = <path>` so Cleaner can call the script.
+4. When you receive the updated script from Cleaner, immediately call `execute_python_code(code=<script>, input_file_path=<path>)`.
+5. If execution succeeds, use `load_data` to inspect the cleaned JSONL; otherwise capture the exception text for step 3 on the next turn.
+6. Repeat until the JSONL passes all checks or `max_turns` is reached.
 """,
     tools=[load_data, rewrite_cleaning_code, execute_python_code],
 )
 
-async def clean_until_valid(path: str, preview_lines: int = 3, max_turns: int = 12):
+async def clean_until_valid(path: str, preview_lines: int = 3, max_turns: int = 24):
     prompt = f"file_path = {path}\nnum_preview_lines = {preview_lines}"
 
     result = Runner.run_streamed(Validator, input=prompt, max_turns=max_turns)

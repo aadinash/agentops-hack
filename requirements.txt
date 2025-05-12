@@ -2,3 +2,5 @@ agentops
 openai-agents
 python-dotenv
 pandas
+fastapi
+uvicorn[standard]

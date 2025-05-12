@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cleaner Runner</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    body {font-family: Arial, sans-serif; margin: 0; padding: 0; background:#f5f5f5;}
+    .container {max-width: 840px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);}  
+    h1 {margin-top: 0;}
+    .controls {display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;}
+    .log {height: 480px; overflow-y: auto; background: #1e1e1e; color: #dcdcdc; padding: 12px; border-radius: 4px; font-family: monospace;}
+    button {padding: 6px 14px; cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>JSONL Cleaner Runner</h1>
+
+    <div class="controls">
+      <label for="fileSelect">Input file:</label>
+      <select id="fileSelect"></select>
+
+      <label for="linesInput">Preview lines:</label>
+      <input id="linesInput" type="number" value="3" min="1" />
+
+      <button id="runBtn">Run</button>
+    </div>
+
+    <pre id="logBox" class="log"></pre>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
