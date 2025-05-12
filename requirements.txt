@@ -1,0 +1,4 @@
+agentops
+openai-agents
+python-dotenv
+pandas
