@@ -3,20 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cleaner Runner</title>
+  <title>Agent Activity Log</title>
   <link rel="stylesheet" href="/static/style.css" />
-  <style>
-    body {font-family: Arial, sans-serif; margin: 0; padding: 0; background:#f5f5f5;}
-    .container {max-width: 840px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);}  
-    h1 {margin-top: 0;}
-    .controls {display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;}
-    .log {height: 480px; overflow-y: auto; background: #1e1e1e; color: #dcdcdc; padding: 12px; border-radius: 4px; font-family: monospace;}
-    button {padding: 6px 14px; cursor:pointer;}
-  </style>
 </head>
 <body>
   <div class="container">
-    <h1>JSONL Cleaner Runner</h1>
+    <h1>Agent Activity Log</h1>
 
     <div class="controls">
       <label for="fileSelect">Input file:</label>
@@ -25,10 +17,49 @@
       <label for="linesInput">Preview lines:</label>
       <input id="linesInput" type="number" value="3" min="1" />
 
-      <button id="runBtn">Run</button>
+      <button id="runBtn">Run Cleaner</button>
     </div>
 
-    <pre id="logBox" class="log"></pre>
+    <div id="logContainer">
+      <!-- Activity log will be rendered here -->
+      <div id="activityLog"></div>
+      
+      <!-- Code execution outcome section -->
+      <div id="executionOutcome" style="display: none;">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#28a745" stroke-width="2" />
+            <path d="M8 12L11 15L16 9" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Code Execution Outcome
+        </h2>
+        <div id="executionResult" class="section-content"></div>
+      </div>
+      
+      <!-- Output path section -->
+      <div id="outputPathSection" style="display: none;">
+        <div class="output-path">
+          <span>✨ Cleaned data available at:</span>
+          <code id="outputPath"></code>
+        </div>
+      </div>
+      
+      <!-- Sample output section -->
+      <div id="sampleOutputSection" style="display: none;">
+        <button class="collapsible">View Sample of Cleaned Output</button>
+        <div class="collapsible-content">
+          <pre id="sampleOutput" class="code-block"></pre>
+        </div>
+      </div>
+      
+      <!-- Agent analysis section -->
+      <div id="agentAnalysisSection" style="display: none;">
+        <button class="collapsible">🧠 Agent's Initial Analysis & Plan</button>
+        <div class="collapsible-content">
+          <div id="agentAnalysis" class="section-content"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="/static/main.js"></script>
